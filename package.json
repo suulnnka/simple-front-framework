@@ -1,0 +1,12 @@
+{
+  "name": "simple-front-framework",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "dev": "hs"
+  },
+  "author": "",
+  "dependencies": {
+    "@pi2star/tool-all-http-server": "^1.0.2"
+  }
+}

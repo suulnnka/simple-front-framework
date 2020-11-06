@@ -1,0 +1,37 @@
+<script src="kix.js"></script>
+
+<script>
+  let index = `{
+    template:\`<a :to="/">index</a>
+    <a :to="/hello">hello</a>\`
+  }`
+  let hello = `{
+    template:\`<a :to="/">index</a>
+    <a :to="/hello">hello</a>
+    {{inputText2}}
+    <input type="text" :model="inputText"></input>\`,
+    controller: {
+      inputText: 'hi',
+      inputText2: 'wait',
+      timer:null,
+      enter(){
+        let i = 0;
+        timer = setInterval(()=>{
+          i = i + 1;
+          this.inputText2 = this.inputText + i;
+        },2000);
+      },
+      exit(){
+        if(timer){
+          clearInterval(timer)
+        }
+      }
+    }
+  }`
+
+  kix.route = [
+    {url:'/',templateString:index},
+    {url:'/hello',templateString:hello},
+  ]
+
+</script>
