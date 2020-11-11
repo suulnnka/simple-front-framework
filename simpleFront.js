@@ -1,10 +1,10 @@
-const kix = {};
+const simpleFront = {};
 
 // TODO :if :for
 // TODO template nesting
 // TODO template argument
 
-kix.current = {
+simpleFront.current = {
   // template
   // model
 };
@@ -13,7 +13,7 @@ const $ = function (selector) {
   return document.querySelector(selector);
 }
 
-kix.monitor = function(originModel){
+simpleFront.monitor = function(originModel){
   let model = {}
 
   for(let key in originModel){
@@ -23,7 +23,7 @@ kix.monitor = function(originModel){
       },
       set: function(value) {
         originModel[key] = value;
-        kix.calculate();
+        simpleFront.calculate();
       },
       enumerable:true
     });
@@ -32,34 +32,34 @@ kix.monitor = function(originModel){
   return model;
 }
 
-kix.load = function(templateString){
+simpleFront.load = function(templateString){
   let func = new Function('return ('+ templateString + ')');
   let {template,controller} = func();
-  let model = kix.monitor(controller);
+  let model = simpleFront.monitor(controller);
 
   return {template,model};
 }
 
-kix.router = function(url){
-  for (let state of kix.route) {
+simpleFront.router = function(url){
+  for (let state of simpleFront.route) {
     const rex = new RegExp('^'+state.url+'$');
     if(rex.test(url)){
       return { url , templateString: state.templateString }
     }
   }
-  return { url: kix.route[0].url , templateString: kix.route[0].templateString }
+  return { url: simpleFront.route[0].url , templateString: simpleFront.route[0].templateString }
 }
 
-kix.calculate = function(){
+simpleFront.calculate = function(){
   let modelKey = [];
   let modelValue = [];
-  for(let key in kix.current.model){
+  for(let key in simpleFront.current.model){
     modelKey.push(key);
-    modelValue.push(kix.current.model[key]);
+    modelValue.push(simpleFront.current.model[key]);
   }
 
   let num = 0;
-  kix.current.template.replace(/{{(.*)}}/g,(_,expression) => {
+  simpleFront.current.template.replace(/{{(.*)}}/g,(_,expression) => {
     num = num + 1
     const func = new Function(...modelKey,'return (' + expression + ')');
     const value = func(...modelValue);
@@ -67,9 +67,9 @@ kix.calculate = function(){
   })
 }
 
-kix.render = function(template,model) {
+simpleFront.render = function(template,model) {
   template = template.replace(/:to="(\/[a-zA-Z0-9-\_]*)"/g,
-    (_,path) => 'onclick="kix.go(\''+path+'\')"');
+    (_,path) => 'onclick="simpleFront.go(\''+path+'\')"');
   
   let num = 0
   template = template.replace(/{{(.*)}}/g,() => {
@@ -87,7 +87,7 @@ kix.render = function(template,model) {
 
   $('body').innerHTML = template;
 
-  kix.calculate();
+  simpleFront.calculate();
 
   for(let name in inputs){
     let input = inputs[name];
@@ -99,34 +99,34 @@ kix.render = function(template,model) {
     input.element.addEventListener('change',input.handler)
   }
 
-  kix.current.model.inputs = inputs
+  simpleFront.current.model.inputs = inputs
 }
 
-kix.pageEnter = function(){
-  if(kix.current.model && kix.current.model.enter){
-    kix.current.model.enter();
+simpleFront.pageEnter = function(){
+  if(simpleFront.current.model && simpleFront.current.model.enter){
+    simpleFront.current.model.enter();
   }
 }
 
-kix.pageExit = function(){
-  if(kix.current.model && kix.current.model.inputs){
-    for(let name in kix.current.inputs){
-      let input = kix.current.inputs[name]
+simpleFront.pageExit = function(){
+  if(simpleFront.current.model && simpleFront.current.model.inputs){
+    for(let name in simpleFront.current.inputs){
+      let input = simpleFront.current.inputs[name]
       input.element.removeEventListener('change', input.handler);
     }
   }
 
-  if(kix.current.model && kix.current.model.exit){
-    kix.current.model.exit();
+  if(simpleFront.current.model && simpleFront.current.model.exit){
+    simpleFront.current.model.exit();
   }
 }
 
-kix.go = function(url){
-  kix.pageExit()
-  let nextPage = kix.router(url);
-  kix.current = kix.load(nextPage.templateString);
-  kix.render(kix.current.template, kix.current.model);
-  kix.pageEnter();
+simpleFront.go = function(url){
+  simpleFront.pageExit()
+  let nextPage = simpleFront.router(url);
+  simpleFront.current = simpleFront.load(nextPage.templateString);
+  simpleFront.render(simpleFront.current.template, simpleFront.current.model);
+  simpleFront.pageEnter();
   
   window.history.pushState({},'',nextPage.url);
 }
@@ -134,5 +134,5 @@ kix.go = function(url){
 window.addEventListener('DOMContentLoaded',event => {
   const rex = /^https?:\/\/[a-zA-Z0-9-\_:\.]+(\/.*)$/;
   const url = rex.exec(window.location.href)[1];
-  kix.go(url);
+  simpleFront.go(url);
 });
